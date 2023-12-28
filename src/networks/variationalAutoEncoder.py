@@ -79,21 +79,6 @@ class Decoder(nn.Module):
             nn.ConvTranspose2d(
                 in_channels=5, out_channels=out_channels, kernel_size=3, stride=1, padding=1),
         )
-        # self.deconvs = nn.Sequential(
-        #     nn.ConvTranspose2d(in_channels=3, out_channels=5,  # padding=1,
-        #                        kernel_size=3, stride=2),
-        #     nn.ReLU(),
-        #     nn.ConvTranspose2d(in_channels=5, out_channels=7,  # padding=1,
-        #                        kernel_size=3, stride=3),
-        #     nn.ReLU(),
-        #     nn.Upsample(3),
-        #     nn.ConvTranspose2d(in_channels=7, out_channels=5,  # padding=1,
-        #                        kernel_size=3, stride=3),
-        #     nn.ReLU(),
-        #     nn.ConvTranspose2d(in_channels=5, out_channels=out_channels,  # padding=1,
-        #                        kernel_size=3, stride=1),
-
-        # )
 
     def forward(self, z):
         z = self.fc(z)
@@ -108,12 +93,6 @@ if __name__ == "__main__":
     dec = Decoder(latent_dim=20, out_channels=3)
     print(vae)
     random_tensor = torch.rand(32, 3, 250, 250)
-    print(vae(random_tensor)[0].shape)
-    print(vae(random_tensor)[1].shape)
-    print(vae(random_tensor)[2].shape)
     z = vae(random_tensor)[0]
     ekesi = dec(z)
     print(ekesi.shape)
-
-    # print(random_tensor.shape)
-    # print(vae)
