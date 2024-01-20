@@ -9,6 +9,19 @@ class VariationalAutoEncoder(pl.LightningModule):
     def __init__(self, channels_order: list, latent_dim: int):
         super().__init__()
 
+        encode_layers = []
+        for i in range(len(channels_order) - 1):
+            encode_layers.extend(
+                [
+                    nn.Conv2d(
+                        channels_order[i], channels_order[i + 1], kernel_size=3, stride=2),
+                    nn.BatchNorm2d(channels_order[i+1]),
+                    nn.ReLU(),
+                    nn.Dropout(dropout)
+                ]
+            )
+        self.encoder = nn.Sequential(*encode_layers)
+
     def encode(self):
         ...
 
