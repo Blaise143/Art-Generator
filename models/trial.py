@@ -1,3 +1,4 @@
+from dataloaders import train_dataset
 import torch
 from PIL import Image
 from torchvision.io import read_image
@@ -7,6 +8,7 @@ import matplotlib.pyplot as plt
 image_path = "data/musemart/dataset_updated/training_set/painting/0012.jpg"
 img = read_image(path=image_path)
 print(img.shape)
+print(img.min(), "min")
 
 target_shape = [250, 250]
 # a = torch.rand(3, 306, 290)
@@ -21,6 +23,7 @@ e = transforms.ToTensor()(d)
 print(d)
 print(e.shape)
 plt.imshow(img.permute(1, 2, 0))
-plt.show()
-plt.imshow(e.permute(1, 2, 0))
-plt.show()
+# plt.show()
+# plt.imshow(e.permute(1, 2, 0))
+# print(train_dataset)
+# plt.show()
