@@ -63,7 +63,7 @@ class VariationalAutoEncoder(pl.LightningModule):
                         output_padding=config['model_config']['encoder_layers'][i].get(
                             'output_padding', 0)
                     ),
-                    nn.BatchNorm2d(channels_order[i + 1]),
+                    # nn.BatchNorm2d(channels_order[i + 1]),
                     nn.ReLU(),
                     nn.Dropout(config['training_config']['dropout'])
                 ]
