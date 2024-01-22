@@ -4,8 +4,8 @@ from typing import List
 import torch.nn.functional as F
 import pytorch_lightning as pl
 import yaml
-# from .perceptron import MLP
-# from ..configs import *
+from torch.optim import Adam
+from pytorch_lightning.utilities.model_summary import ModelSummary
 
 
 class VariationalAutoEncoder(pl.LightningModule):
@@ -51,7 +51,7 @@ class VariationalAutoEncoder(pl.LightningModule):
         # Decoder
         decode_layers = []
         channels_order.reverse()
-        for i in range(len(channels_order) - 1):
+        for i in range(len(channels_order) - 2):
             decode_layers.extend(
                 [
                     nn.ConvTranspose2d(
@@ -68,6 +68,20 @@ class VariationalAutoEncoder(pl.LightningModule):
                     nn.Dropout(config['training_config']['dropout'])
                 ]
             )
+        i = -2
+        decode_layers.extend(
+            [
+                nn.ConvTranspose2d(
+                    channels_order[i], channels_order[i+1],
+                    kernel_size=config['model_config']['encoder_layers'][i]['kernel_size'],
+                    stride=config['model_config']['encoder_layers'][i]['stride'],
+                    padding=config['model_config']['encoder_layers'][i].get(
+                        'padding', 1),
+                    output_padding=config['model_config']['encoder_layers'][i].get(
+                        'output_padding', 0)),
+                nn.Sigmoid()
+            ]
+        )
         self.decoder = nn.Sequential(*decode_layers)
 
     def _calc_flatten_dim(self, input_size, out_channels):
@@ -151,5 +165,8 @@ if __name__ == "__main__":
     x = torch.randn((1, 3, 250, 250))
     print(x.shape)
     vae = VariationalAutoEncoder(config)
+    # print("SHAPE")
     print(vae(x)[0].shape)
-    print(vae)
+    # print(vae)
+    summary = ModelSummary(vae)
+    print(summary)
