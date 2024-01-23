@@ -11,7 +11,7 @@ model_config:
   input_size: [250, 250]
 
 training_config:
-  learning_rate: 0.01
+  learning_rate: 0.004
   batch_size: 400
   epochs: 50
   dropout: 0.1
