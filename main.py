@@ -7,7 +7,7 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 import wandb
-wandb.login()
+# wandb.login()
 
 checkpoint_callback = ModelCheckpoint(
     monitor='val_loss',  # Name of the metric to monitor
@@ -28,6 +28,7 @@ dataloader = CustomDataLoader(batch_size=10)
 trainer = Trainer(max_epochs=10,
                   callbacks=checkpoint_callback,
                   logger=wandb_logger)
+# trainer.tune.lr_find(model)
 trainer.fit(model, dataloader)
 # print(config)
 # x = torch.randn((3, 3, 250, 250))
