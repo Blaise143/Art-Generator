@@ -34,7 +34,7 @@ class VariationalAutoEncoder(pl.LightningModule):
                     nn.BatchNorm2d(channels_order[i+1]),
                     nn.ReLU(),
                     # nn.MaxPool2d(2),
-                    nn.Dropout(config['training_config']['dropout'])
+                    # nn.Dropout(config['training_config']['dropout'])
                 ]
             )
         self.encoder = nn.Sequential(*encode_layers)
@@ -83,6 +83,7 @@ class VariationalAutoEncoder(pl.LightningModule):
             ]
         )
         self.decoder = nn.Sequential(*decode_layers)
+        self.learning_rate = 0.003
 
     def _calc_flatten_dim(self, input_size, out_channels):
         # Dummy variable to calculate output size
@@ -122,15 +123,15 @@ class VariationalAutoEncoder(pl.LightningModule):
         recon_x, mu, log_var = self.forward(x)
 
         # Calculate loss
-        recon_loss = F.mse_loss(recon_x, x, reduction='sum')
+        recon_loss = F.mse_loss(recon_x, x, reduction='mean')
         kld_loss = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
 
         if step_type == "train":
-            beta = 0.8
+            beta = 0.1
         else:
             beta = 1.0
 
-        loss = recon_loss + beta * kld_loss
+        loss = 2*recon_loss + beta * kld_loss
 
         return loss, recon_loss, kld_loss
 
@@ -152,8 +153,7 @@ class VariationalAutoEncoder(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = Adam(self.parameters(),
-                         lr=self.config['training_config']['learning_rate'])
+        optimizer = Adam(self.parameters(), lr=self.learning_rate)
         return optimizer
 
 
@@ -166,7 +166,19 @@ if __name__ == "__main__":
     print(x.shape)
     vae = VariationalAutoEncoder(config)
     # print("SHAPE")
+    print(vae)
     print(vae(x)[0].shape)
     # print(vae)
     summary = ModelSummary(vae)
     print(summary)
+    total_params = sum(
+        param.numel() for param in vae.parameters() if param.requires_grad
+    )
+    print(f"all the parameters: {total_params}")
+    from torchviz import make_dot
+    y = vae(x)
+    make_dot(y,
+             params=dict(vae.named_parameters()),
+             show_attrs=True,
+             show_saved=True
+             ).render("attached", format="png")
